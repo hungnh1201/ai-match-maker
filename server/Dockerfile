@@ -15,12 +15,13 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application files
 COPY server.py .
 COPY templates/ templates/
 COPY scripts/ scripts/
 COPY models/ models/
-COPY config/ config/
+COPY data/ data/
+COPY outputs/ outputs/
 
 # Copy data files if they exist, create directories if not
 RUN mkdir -p data/processed models/trained outputs
