@@ -1,17 +1,7 @@
-providers = ["python"]
-
+# Minimal nixpacks config - let it auto-detect everything
 [variables]
 PYTHONPATH = "/app/server"
 APP_ENV = "production"
-
-[phases.setup]
-nixPkgs = ["python311", "gcc", "g++"]
-
-[phases.install]
-cmds = ["pip install -r server/requirements.txt"]
-
-[phases.build]
-cmds = ["echo 'Build complete'"]
 
 [start]
 cmd = "cd server && python server.py"
