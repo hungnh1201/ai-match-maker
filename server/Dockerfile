@@ -1,4 +1,4 @@
-# Production Dockerfile for AI Matchmaker with full AI model
+# Production AI Matchmaker - Clean Dockerfile
 FROM python:3.11-slim
 
 # Install system dependencies
@@ -8,14 +8,13 @@ RUN apt-get update && apt-get install -y \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Copy and install requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy application files (only what exists)
 COPY server.py .
 COPY templates/ templates/
 COPY scripts/ scripts/
@@ -23,17 +22,11 @@ COPY models/ models/
 COPY data/ data/
 COPY outputs/ outputs/
 
-# Copy data files if they exist, create directories if not
-RUN mkdir -p data/processed models/trained outputs
-COPY data/processed/ data/processed/ 
-COPY models/trained/ models/trained/
-COPY outputs/ outputs/
-
 # Set environment variables
 ENV APP_ENV=production
 ENV PYTHONPATH=/app
 
-# Expose port (will be set by deployment platform)
+# Expose port
 EXPOSE $PORT
 
 # Health check
