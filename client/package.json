@@ -1,0 +1,22 @@
+{
+  "name": "ai-matchmaker-client",
+  "version": "1.0.0",
+  "description": "AI Matchmaker - Beautiful client interface for AI-powered dating recommendations",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "ai",
+    "matchmaker",
+    "dating",
+    "recommendations",
+    "machine-learning"
+  ],
+  "author": "AI Matchmaker Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}

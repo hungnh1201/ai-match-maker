@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💝 AI Matchmaker - Smart Dating Recommendations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #475569;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .container {
+            background: rgba(51, 65, 85, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            width: 95%;
+            max-width: 900px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient);
+        }
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .app-title {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .app-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+        
+        .api-config {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .config-title {
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+            text-align: left;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        
+        .btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-icon {
+            font-size: 1.1rem;
+        }
+        
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #86efac;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .app-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <h1 class="app-title">💝 AI Matchmaker</h1>
+            <p class="app-subtitle">Production Client - Connect to Your K8s Deployment</p>
+        </div>
+        
+        <div class="api-config">
+            <div class="config-title">
+                <i class="fas fa-server"></i>
+                API Configuration
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="apiUrl">
+                    <i class="fas fa-link"></i> API Server URL
+                </label>
+                <input 
+                    type="text" 
+                    id="apiUrl" 
+                    class="form-input" 
+                    placeholder="https://your-railway-app.railway.app" 
+                    value="https://ai-matchmaker-production.up.railway.app"
+                >
+                <i class="fas fa-server input-icon"></i>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label" for="userId">
+                <i class="fas fa-id-card"></i> User ID
+            </label>
+            <input 
+                type="text" 
+                id="userId" 
+                class="form-input" 
+                placeholder="Enter user ID (e.g., 5404674)" 
+                pattern="[0-9]*" 
+                inputmode="numeric"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                required
+            >
+            <i class="fas fa-hashtag input-icon"></i>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="analyzeUser()">
+                <i class="fas fa-chart-line btn-icon" id="analyzeIcon"></i>
+                <span id="analyzeText">Get AI Recommendations</span>
+                <span id="loadingSpinner" class="loading-spinner hidden"></span>
+            </button>
+        </div>
+        
+        <div id="analysisError" class="alert alert-error hidden">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span></span>
+        </div>
+        
+        <div id="results" class="hidden" style="margin-top: 2rem;">
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = () => document.getElementById('apiUrl').value || 'http://localhost:8080';
+        
+        async function analyzeUser() {
+            const userId = document.getElementById('userId').value;
+            const errorDiv = document.getElementById('analysisError');
+            const errorSpan = errorDiv.querySelector('span');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const analyzeText = document.getElementById('analyzeText');
+            const analyzeIcon = document.getElementById('analyzeIcon');
+            
+            if (!userId) {
+                showError(errorDiv, errorSpan, 'Please enter a User ID');
+                return;
+            }
+            
+            // Show loading
+            loadingSpinner.classList.remove('hidden');
+            analyzeIcon.classList.add('hidden');
+            analyzeText.textContent = 'Analyzing user data...';
+            errorDiv.classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE()}/api/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    showError(errorDiv, errorSpan, data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                showError(errorDiv, errorSpan, `Failed to connect to API server: ${error.message}`);
+            } finally {
+                // Hide loading
+                loadingSpinner.classList.add('hidden');
+                analyzeIcon.classList.remove('hidden');
+                analyzeText.textContent = 'Get AI Recommendations';
+            }
+        }
+        
+        function displayResults(data) {
+            const resultsContent = document.getElementById('resultsContent');
+            const userProfile = data.user_profile;
+            const behavior = data.behavior_analysis;
+            const recommendations = data.recommendations;
+            
+            let html = `
+                <div style="background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+                    <h2 style="color: var(--text-primary); margin-bottom: 1rem;">👤 User Profile</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${userProfile.userid}</div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">USER ID</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${userProfile.age}</div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">AGE</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${userProfile.gender}</div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">GENDER</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (Array.isArray(recommendations) && recommendations.length > 0) {
+                html += `
+                    <div style="background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 2rem;">
+                        <h2 style="color: var(--text-primary); margin-bottom: 1.5rem;">💝 Top ${recommendations.length} Recommendations</h2>
+                `;
+                
+                recommendations.forEach((rec, index) => {
+                    html += `
+                        <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; position: relative;">
+                            <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient);"></div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="background: var(--gradient); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">${index + 1}</div>
+                                <div style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">Score: ${rec.similarity_score ? rec.similarity_score.toFixed(3) : 'N/A'}</div>
+                            </div>
+                            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">User ${rec.candidate_id}</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                                    <i class="fas fa-birthday-cake" style="color: var(--primary);"></i>
+                                    <span>${rec.age || 'Unknown'} years old</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i>
+                                    <span>${rec.distance_km} km away</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                                <p style="color: var(--text-secondary); font-style: italic;">${rec.bio || 'No bio available'}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            resultsContent.innerHTML = html;
+            document.getElementById('results').classList.remove('hidden');
+        }
+        
+        function showError(errorDiv, errorSpan, message) {
+            errorSpan.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+        
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeUser();
+            }
+        });
+    </script>
+</body>
+</html>

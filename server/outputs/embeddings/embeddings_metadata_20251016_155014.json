@@ -1,0 +1,8 @@
+{
+  "timestamp": "20251016_155014",
+  "user_embeddings_count": 15144,
+  "candidate_embeddings_count": 15144,
+  "embedding_dimension": 128,
+  "model_type": "cross_attention_recommendation",
+  "gender_separated": true
+}

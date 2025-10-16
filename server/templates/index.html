@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💝 AI Matchmaker - Smart Dating Recommendations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #475569;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .container {
+            background: rgba(51, 65, 85, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            width: 95%;
+            max-width: 900px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient);
+        }
+        
+        .login-form, .main-app {
+            text-align: center;
+        }
+        
+        .app-header {
+            margin-bottom: 3rem;
+        }
+        
+        .app-title {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .app-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+            text-align: left;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        
+        .btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-icon {
+            font-size: 1.1rem;
+        }
+        
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #86efac;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .results {
+            margin-top: 3rem;
+            text-align: left;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-card {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .recommendation-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .recommendation-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--gradient);
+        }
+        
+        .recommendation-card:hover {
+            transform: translateX(8px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+        }
+        
+        .rec-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .rec-rank {
+            background: var(--gradient);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .rec-score {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .rec-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .rec-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .rec-detail-icon {
+            color: var(--primary);
+            width: 16px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .credentials-card {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .credentials-title {
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .credential-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.75rem 0;
+            color: var(--text-secondary);
+        }
+        
+        .credential-code {
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--warning);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .app-title {
+                font-size: 2.5rem;
+            }
+            
+            .stat-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+            
+            .rec-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm" class="login-form">
+            <div class="app-header">
+                <h1 class="app-title">💝 AI Matchmaker</h1>
+                <p class="app-subtitle">Smart Dating Recommendations Powered by AI</p>
+            </div>
+            
+            <div class="credentials-card">
+                <div class="credentials-title">
+                    <i class="fas fa-key"></i>
+                    Demo Credentials
+                </div>
+                <div class="credential-item">
+                    <span>Username:</span>
+                    <code class="credential-code">admin</code>
+                    <span>Password:</span>
+                    <code class="credential-code">password123</code>
+                </div>
+                <div class="credential-item">
+                    <span>Username:</span>
+                    <code class="credential-code">demo</code>
+                    <span>Password:</span>
+                    <code class="credential-code">demo123</code>
+                </div>
+                <div class="credential-item">
+                    <span>Username:</span>
+                    <code class="credential-code">test</code>
+                    <span>Password:</span>
+                    <code class="credential-code">test123</code>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="username">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required>
+                <i class="fas fa-user input-icon"></i>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                <i class="fas fa-lock input-icon"></i>
+            </div>
+            
+            <button class="btn" onclick="login()">
+                <i class="fas fa-sign-in-alt btn-icon"></i>
+                Sign In
+            </button>
+            
+            <div id="loginError" class="alert alert-error hidden">
+                <i class="fas fa-exclamation-circle"></i>
+                <span></span>
+            </div>
+        </div>
+        
+        <!-- Main Application -->
+        <div id="mainApp" class="main-app hidden">
+            <div class="app-header">
+                <h1 class="app-title">🎯 AI Analysis Dashboard</h1>
+                <p class="app-subtitle">Discover user patterns and get personalized recommendations</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="userId">
+                    <i class="fas fa-id-card"></i> User ID
+                </label>
+                <input 
+                    type="text" 
+                    id="userId" 
+                    name="userId" 
+                    class="form-input" 
+                    placeholder="Enter user ID (e.g., 5404674)" 
+                    pattern="[0-9]*" 
+                    inputmode="numeric"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                    required
+                >
+                <i class="fas fa-hashtag input-icon"></i>
+            </div>
+            
+            <button class="btn" onclick="analyzeUser()">
+                <i class="fas fa-chart-line btn-icon" id="analyzeIcon"></i>
+                <span id="analyzeText">Analyze User & Get Recommendations</span>
+                <span id="loadingSpinner" class="loading-spinner hidden"></span>
+            </button>
+            
+            <div id="analysisError" class="alert alert-error hidden">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span></span>
+            </div>
+            
+            <!-- Results -->
+            <div id="results" class="results hidden">
+                <!-- User Profile -->
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h2 class="result-title">User Profile</h2>
+                    </div>
+                    <div id="userProfileContent"></div>
+                </div>
+                
+                <!-- Behavior Analysis -->
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h2 class="result-title">Interaction Patterns</h2>
+                    </div>
+                    <div id="behaviorContent"></div>
+                </div>
+                
+                <!-- Recommendations -->
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h2 class="result-title">Top 5 Recommendations</h2>
+                    </div>
+                    <div id="recommendationsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            const errorSpan = errorDiv.querySelector('span');
+            
+            if (!username || !password) {
+                showError(errorDiv, errorSpan, 'Please enter both username and password');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('loginForm').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                } else {
+                    showError(errorDiv, errorSpan, data.message);
+                }
+            } catch (error) {
+                showError(errorDiv, errorSpan, 'Login failed. Please try again.');
+            }
+        }
+        
+        async function analyzeUser() {
+            const userId = document.getElementById('userId').value;
+            const errorDiv = document.getElementById('analysisError');
+            const errorSpan = errorDiv.querySelector('span');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const analyzeText = document.getElementById('analyzeText');
+            const analyzeIcon = document.getElementById('analyzeIcon');
+            
+            if (!userId) {
+                showError(errorDiv, errorSpan, 'Please enter a User ID');
+                return;
+            }
+            
+            // Show loading
+            loadingSpinner.classList.remove('hidden');
+            analyzeIcon.classList.add('hidden');
+            analyzeText.textContent = 'Analyzing user data...';
+            errorDiv.classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    showError(errorDiv, errorSpan, data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                showError(errorDiv, errorSpan, 'Failed to analyze user. Please try again.');
+            } finally {
+                // Hide loading
+                loadingSpinner.classList.add('hidden');
+                analyzeIcon.classList.remove('hidden');
+                analyzeText.textContent = 'Analyze User & Get Recommendations';
+            }
+        }
+        
+        function displayResults(data) {
+            // User Profile
+            const userProfile = data.user_profile;
+            document.getElementById('userProfileContent').innerHTML = `
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${userProfile.userid}</div>
+                        <div class="stat-label">User ID</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${userProfile.age}</div>
+                        <div class="stat-label">Age</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${userProfile.gender}</div>
+                        <div class="stat-label">Gender</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(15, 23, 42, 0.4); border-radius: 8px;">
+                    <strong style="color: var(--text-primary);">Bio:</strong>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">${userProfile.bio || 'No bio available'}</p>
+                </div>
+            `;
+            
+            // Behavior Analysis
+            const behavior = data.behavior_analysis;
+            let behaviorHtml = '';
+            
+            if (behavior.message) {
+                behaviorHtml = `<p style="color: var(--text-secondary);">${behavior.message}</p>`;
+            } else {
+                behaviorHtml = `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Total Interactions: ${behavior.total_interactions}</h3>
+                        <div class="stat-grid">
+                `;
+                
+                for (const [action, count] of Object.entries(behavior.action_breakdown)) {
+                    const actionName = action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    behaviorHtml += `
+                        <div class="stat-card">
+                            <div class="stat-number">${count}</div>
+                            <div class="stat-label">${actionName}</div>
+                        </div>
+                    `;
+                }
+                
+                behaviorHtml += '</div></div>';
+                
+                // Age preferences
+                if (behavior.age_preferences && Object.keys(behavior.age_preferences).length > 0) {
+                    behaviorHtml += '<div style="margin-top: 2rem;"><h3 style="color: var(--text-primary); margin-bottom: 1rem;">Age Group Preferences</h3>';
+                    for (const [action, ageGroups] of Object.entries(behavior.age_preferences)) {
+                        if (Object.keys(ageGroups).length > 0) {
+                            const actionName = action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            behaviorHtml += `<div style="margin: 1rem 0; padding: 1rem; background: rgba(15, 23, 42, 0.4); border-radius: 8px;"><h4 style="color: var(--primary); margin-bottom: 0.5rem;">${actionName}:</h4><div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">`;
+                            for (const [ageGroup, count] of Object.entries(ageGroups)) {
+                                behaviorHtml += `<span style="background: var(--gradient); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${ageGroup}: ${count}</span>`;
+                            }
+                            behaviorHtml += '</div></div>';
+                        }
+                    }
+                    behaviorHtml += '</div>';
+                }
+            }
+            
+            document.getElementById('behaviorContent').innerHTML = behaviorHtml;
+            
+            // Recommendations
+            const recommendations = data.recommendations;
+            let recHtml = '';
+            
+            if (recommendations.error) {
+                recHtml = `<div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i><span>${recommendations.error}</span></div>`;
+            } else if (Array.isArray(recommendations)) {
+                recommendations.forEach((rec, index) => {
+                    recHtml += `
+                        <div class="recommendation-card">
+                            <div class="rec-header">
+                                <div class="rec-rank">${index + 1}</div>
+                                <div class="rec-score">Score: ${rec.similarity_score ? rec.similarity_score.toFixed(3) : 'N/A'}</div>
+                            </div>
+                            <h3 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.2rem;">User ${rec.candidate_id}</h3>
+                            <div class="rec-details">
+                                <div class="rec-detail">
+                                    <i class="fas fa-birthday-cake rec-detail-icon"></i>
+                                    <span>${rec.age || 'Unknown'} years old</span>
+                                </div>
+                                <div class="rec-detail">
+                                    <i class="fas fa-map-marker-alt rec-detail-icon"></i>
+                                    <span>${rec.distance_km} km away</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                                <p style="color: var(--text-secondary); font-style: italic;">${rec.bio || 'No bio available'}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                recHtml = '<p style="color: var(--text-secondary);">No recommendations available</p>';
+            }
+            
+            document.getElementById('recommendationsContent').innerHTML = recHtml;
+            document.getElementById('results').classList.remove('hidden');
+        }
+        
+        function showError(errorDiv, errorSpan, message) {
+            errorSpan.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+        
+        // Allow Enter key to submit forms
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (!document.getElementById('loginForm').classList.contains('hidden')) {
+                    login();
+                } else if (!document.getElementById('mainApp').classList.contains('hidden')) {
+                    analyzeUser();
+                }
+            }
+        });
+        
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus effects to inputs
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

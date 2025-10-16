@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "name": "ai-matchmaker-client",
+  "builds": [
+    {
+      "src": "client/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/client/$1"
+    }
+  ],
+  "env": {
+    "API_URL": "http://your-k8s-cluster-ip"
+  }
+}
