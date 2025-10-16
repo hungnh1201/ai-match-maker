@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: ai-matchmaker
+    env: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: starter
+    region: oregon
+    branch: main
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PYTHONPATH
+        value: /app
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "10000"
+    scaling:
+      minInstances: 1
+      maxInstances: 3
