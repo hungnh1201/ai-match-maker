@@ -1,0 +1,13 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "python server.py"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[env]
+APP_ENV = "production"
+PYTHONPATH = "/app"
+PYTHONUNBUFFERED = "1"
