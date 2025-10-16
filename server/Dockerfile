@@ -1,37 +1,52 @@
-# Railway-optimized Dockerfile for fast builds
-FROM python:3.11-slim
+# Multi-stage build to reduce image size
+FROM python:3.11-slim as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install system dependencies (minimal)
+# Copy and install requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Production stage
+FROM python:3.11-slim
+
+# Install only runtime dependencies
 RUN apt-get update && apt-get install -y \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+WORKDIR /app
 
-# Install Python packages using pre-compiled wheels only
-# This avoids compilation and significantly reduces build time
-RUN pip install --no-cache-dir \
-    --only-binary=all \
-    -r requirements.txt || \
-    pip install --no-cache-dir -r requirements.txt
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
 
-# Copy application files (excluding outputs/ - will be created at runtime)
+# Copy only essential application files
 COPY server.py .
 COPY templates/ templates/
-COPY scripts/ scripts/
-COPY models/ models/
-COPY data/ data/
+COPY scripts/step5_generate_recommendations.py scripts/
+COPY scripts/__init__.py scripts/
+COPY models/__init__.py models/
+COPY models/cross_attention_recommendation_model.py models/
+COPY models/sentence_encoder.py models/
 
-# Create outputs directory for runtime
-RUN mkdir -p outputs/data outputs/embeddings outputs/vector_db
+# Copy only the trained model (not all training files)
+COPY models/trained/best_model.pt models/trained/
+
+# Copy only essential data files
+COPY data/processed/ data/processed/
+COPY outputs/ outputs/
 
 # Set environment variables
 ENV APP_ENV=production
 ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
+ENV PATH=/root/.local/bin:$PATH
 
 # Expose port
 EXPOSE $PORT
