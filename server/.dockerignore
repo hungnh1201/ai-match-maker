@@ -1,0 +1,32 @@
+# Exclude unnecessary files from Docker build context
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.git/
+.gitignore
+README.md
+*.md
+.env
+.env.*
+
+# Exclude runtime outputs and data that should be generated at runtime
+outputs/
+data/processed/
+
+# Exclude development files
+.pytest_cache/
+.coverage
+.vscode/
+.idea/
+
+# Exclude logs
+*.log
+logs/
+
+# Exclude temporary files
+tmp/
+temp/
