@@ -1,4 +1,4 @@
-# Production AI Matchmaker - Clean Dockerfile
+# Production AI Matchmaker - Server Dockerfile
 FROM python:3.11-slim
 
 # Install system dependencies
