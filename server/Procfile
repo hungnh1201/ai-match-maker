@@ -1,1 +1,2 @@
 web: python server.py
+release: echo "AI Matchmaker deployment starting..."
