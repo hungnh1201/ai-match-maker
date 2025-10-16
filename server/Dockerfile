@@ -1,4 +1,4 @@
-# Railway-optimized Dockerfile for fast builds
+# Render-optimized Dockerfile for AI Matchmaker
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -33,10 +33,10 @@ ENV APP_ENV=production
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Expose port
+# Render uses PORT environment variable
 EXPOSE $PORT
 
-# Health check
+# Health check for Render
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:$PORT/api/health || exit 1
 
