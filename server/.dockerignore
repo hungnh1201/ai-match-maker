@@ -29,8 +29,8 @@ runtime.txt
 start.sh
 
 # Exclude runtime outputs and data that should be generated at runtime
-outputs/
-data/processed/
+# outputs/
+# data/processed/
 
 # Exclude development files
 .pytest_cache/
