@@ -41,8 +41,7 @@ class GenderAwareRecommendationEngine:
         self.interactions_df = None
         if interactions_path and Path(interactions_path).exists():
             self.interactions_df = pd.read_parquet(interactions_path)
-            logger.info(
-                f"Loaded {len(self.interactions_df)} interactions for pattern learning")
+            logger.info(f"Loaded {len(self.interactions_df)} interactions for pattern learning")
         # Load configuration
         config_file = self.vector_db_dir / "gender_aware_vector_db_config.json"
         with open(config_file, 'r') as f:
@@ -126,13 +125,11 @@ class GenderAwareRecommendationEngine:
             f"User {user_id} is {user_gender}, searching for {self._get_target_gender(user_gender)} candidates")
 
         # Search for gender-appropriate candidates (search more to account for filtering)
-        # Search at least 5x more candidates or minimum 100
-        search_k = max(top_k * 5, 100)
+        search_k = max(top_k * 5, 100)  # Search at least 5x more candidates or minimum 100
         similar_candidates = self._search_gender_appropriate_candidates(
             user_id, search_k)
-
-        logger.info(
-            f"Found {len(similar_candidates)} similar candidates before filtering")
+        
+        logger.info(f"Found {len(similar_candidates)} similar candidates before filtering")
 
         if not similar_candidates:
             logger.warning(f"No similar candidates found for user {user_id}")
@@ -171,8 +168,7 @@ class GenderAwareRecommendationEngine:
             target_candidate_ids = self.male_candidate_ids
             target_gender = "male"
         else:
-            logger.error(
-                f"This system only supports female users. User {user_id} is {user_gender}")
+            logger.error(f"This system only supports female users. User {user_id} is {user_gender}")
             return []
 
         if target_index is None:
@@ -180,9 +176,8 @@ class GenderAwareRecommendationEngine:
             return []
 
         # Search for similar candidates
-        logger.info(
-            f"Searching for {search_k} candidates in {target_gender} index (size: {target_index.ntotal})")
-
+        logger.info(f"Searching for {search_k} candidates in {target_gender} index (size: {target_index.ntotal})")
+        
         # For IVF indexes, ensure nprobe is set high enough
         if hasattr(target_index, 'nprobe'):
             original_nprobe = target_index.nprobe
@@ -190,13 +185,11 @@ class GenderAwareRecommendationEngine:
             min_nprobe = min(32, max(16, target_index.ntotal // 100))
             if target_index.nprobe < min_nprobe:
                 target_index.nprobe = min_nprobe
-                logger.info(
-                    f"Increased nprobe from {original_nprobe} to {target_index.nprobe} for better results")
-
+                logger.info(f"Increased nprobe from {original_nprobe} to {target_index.nprobe} for better results")
+        
         similarities, indices = target_index.search(user_embedding, search_k)
-
-        logger.info(
-            f"FAISS returned {len(indices[0])} indices, {len(similarities[0])} similarities")
+        
+        logger.info(f"FAISS returned {len(indices[0])} indices, {len(similarities[0])} similarities")
         valid_results = sum(1 for idx in indices[0] if idx != -1)
         logger.info(f"Valid results (idx != -1): {valid_results}")
 
@@ -223,12 +216,11 @@ class GenderAwareRecommendationEngine:
 
         recommendations = []
         target_gender = self._get_target_gender(user_gender)
-
-        # Learn user's age AND location preferences from interactions
-        age_preferences = self._learn_age_preferences(user_id)
-        location_preferences = self._learn_location_preferences(
-            user_id, user_profile)
-
+        
+        # Learn user's age AND location preferences from interactions (or use cold-start)
+        age_preferences = self._learn_age_preferences(user_id, user_profile)
+        location_preferences = self._learn_location_preferences(user_id, user_profile)
+        
         filtered_counts = {
             'similarity_threshold': 0,
             'self_match': 0,
@@ -263,12 +255,12 @@ class GenderAwareRecommendationEngine:
                 logger.warning(
                     f"Gender mismatch: expected {target_gender}, got {candidate_profile['gender']}")
                 continue
-
+            
             # AGE-AWARE FILTERING: Check if candidate age matches user's learned preferences
             if not self._is_age_compatible(candidate_profile['age'], age_preferences):
                 filtered_counts['age_filtered'] += 1
                 continue
-
+            
             # Calculate distance
             distance_km = None
             if user_profile['city_lat'] != 0 and candidate_profile['city_lat'] != 0:
@@ -276,12 +268,12 @@ class GenderAwareRecommendationEngine:
                     user_profile['city_lat'], user_profile['city_long'],
                     candidate_profile['city_lat'], candidate_profile['city_long']
                 )
-
+            
             # LOCATION-AWARE FILTERING: Check if distance matches user's learned preferences
             if not self._is_location_compatible(distance_km, location_preferences):
                 filtered_counts['location_filtered'] += 1
                 continue
-
+            
             filtered_counts['accepted'] += 1
 
             # Create recommendation entry
@@ -308,72 +300,66 @@ class GenderAwareRecommendationEngine:
 
         # Log filtering statistics
         logger.info(f"Filtering results for user {user_id}:")
-        logger.info(
-            f"  - Similarity threshold filtered: {filtered_counts['similarity_threshold']}")
-        logger.info(
-            f"  - Self matches filtered: {filtered_counts['self_match']}")
-        logger.info(
-            f"  - Missing profiles filtered: {filtered_counts['profile_missing']}")
-        logger.info(
-            f"  - Gender mismatches filtered: {filtered_counts['gender_mismatch']}")
-        logger.info(
-            f"  - AGE FILTERED (pattern-based): {filtered_counts['age_filtered']}")
-        logger.info(
-            f"  - LOCATION FILTERED (pattern-based): {filtered_counts['location_filtered']}")
+        logger.info(f"  - Similarity threshold filtered: {filtered_counts['similarity_threshold']}")
+        logger.info(f"  - Self matches filtered: {filtered_counts['self_match']}")
+        logger.info(f"  - Missing profiles filtered: {filtered_counts['profile_missing']}")
+        logger.info(f"  - Gender mismatches filtered: {filtered_counts['gender_mismatch']}")
+        logger.info(f"  - AGE FILTERED (pattern-based): {filtered_counts['age_filtered']}")
+        logger.info(f"  - LOCATION FILTERED (pattern-based): {filtered_counts['location_filtered']}")
         logger.info(f"  - Accepted candidates: {filtered_counts['accepted']}")
         logger.info(f"  - Final recommendations: {len(recommendations)}")
         if age_preferences:
-            logger.info(
-                f"  - User's learned age preferences: {age_preferences}")
+            logger.info(f"  - User's learned age preferences: {age_preferences}")
         if location_preferences:
-            logger.info(
-                f"  - User's learned location preferences: {location_preferences}")
+            logger.info(f"  - User's learned location preferences: {location_preferences}")
 
         return recommendations
 
-    def _learn_age_preferences(self, user_id: int) -> Dict:
-        """Learn user's age preferences from their interaction history"""
-
+    def _learn_age_preferences(self, user_id: int, user_profile: pd.Series = None) -> Dict:
+        """Learn user's age preferences from their interaction history OR use smart cold-start"""
+        
         if self.interactions_df is None or user_id not in self.interactions_df['user_id'].values:
-            # No interaction data - use default (no filtering)
-            return {'min_age': 18, 'max_age': 100, 'has_data': False}
-
+            # COLD START: Use demographic-based defaults
+            if user_profile is not None:
+                return self._get_cold_start_age_preferences(user_profile)
+            return {'min_age': 18, 'max_age': 100, 'has_data': False, 'cold_start': True}
+        
         # Get user's interactions
         user_interactions = self.interactions_df[self.interactions_df['user_id'] == user_id]
-
+        
         # Define positive actions (accept, love, message, etc.)
-        positive_actions = ['love', 'first_message', 'reply',
-                            'request_contact', 'accept_contact', 'smile']
-        positive_interactions = user_interactions[user_interactions['action'].isin(
-            positive_actions)]
-
+        positive_actions = ['love', 'first_message', 'reply', 'request_contact', 'accept_contact', 'smile']
+        positive_interactions = user_interactions[user_interactions['action'].isin(positive_actions)]
+        
         if len(positive_interactions) == 0:
-            # No positive interactions - use default
-            return {'min_age': 18, 'max_age': 100, 'has_data': False}
-
+            # COLD START: No positive interactions yet
+            if user_profile is not None:
+                return self._get_cold_start_age_preferences(user_profile)
+            return {'min_age': 18, 'max_age': 100, 'has_data': False, 'cold_start': True}
+        
         # Get ages of accepted candidates
         accepted_candidate_ids = positive_interactions['candidate_id'].unique()
         accepted_ages = []
-
+        
         for cand_id in accepted_candidate_ids:
             if cand_id in self.profiles_df.index:
                 age = self.profiles_df.loc[cand_id]['age']
                 if age > 0:
                     accepted_ages.append(age)
-
+        
         if not accepted_ages:
             return {'min_age': 18, 'max_age': 100, 'has_data': False}
-
+        
         # Calculate age range with tolerance
         min_accepted = min(accepted_ages)
         max_accepted = max(accepted_ages)
         avg_accepted = sum(accepted_ages) / len(accepted_ages)
-
+        
         # Add tolerance: ±3 years from min/max
         tolerance = 3
         min_age = max(18, min_accepted - tolerance)
         max_age = min(100, max_accepted + tolerance)
-
+        
         return {
             'min_age': min_age,
             'max_age': max_age,
@@ -381,43 +367,71 @@ class GenderAwareRecommendationEngine:
             'accepted_count': len(accepted_ages),
             'has_data': True
         }
-
+    
     def _is_age_compatible(self, candidate_age: int, age_preferences: Dict) -> bool:
         """Check if candidate age matches user's learned preferences"""
-
+        
         if not age_preferences or not age_preferences.get('has_data', False):
             # No preference data - accept all ages
             return True
-
+        
         return age_preferences['min_age'] <= candidate_age <= age_preferences['max_age']
-
+    
+    def _get_cold_start_age_preferences(self, user_profile: pd.Series) -> Dict:
+        """Generate LOOSE age preferences for cold-start users - bio should dominate"""
+        
+        user_age = int(user_profile['age'])
+        
+        # LOOSE age filters for cold-start: bio similarity is PRIMARY, age is SECONDARY
+        # Only filter extreme age mismatches, let bio drive recommendations
+        if user_age <= 25:
+            # Young users: wider range to capture bio similarity
+            min_age = max(18, user_age - 7)
+            max_age = min(100, user_age + 10)
+        elif user_age <= 35:
+            # Mid-age: even wider range
+            min_age = max(18, user_age - 10)
+            max_age = min(100, user_age + 15)
+        else:
+            # Older users: very wide range
+            min_age = max(18, user_age - 15)
+            max_age = min(100, user_age + 20)
+        
+        return {
+            'min_age': min_age,
+            'max_age': max_age,
+            'avg_age': user_age,
+            'has_data': True,
+            'cold_start': True,
+            'strategy': 'bio_dominant_loose_age'
+        }
+    
     def _learn_location_preferences(self, user_id: int, user_profile: pd.Series) -> Dict:
-        """Learn user's location/distance preferences from their interaction history"""
-
+        """Learn user's location/distance preferences from their interaction history OR use smart cold-start"""
+        
         if self.interactions_df is None or user_id not in self.interactions_df['user_id'].values:
-            # No interaction data - use default (no filtering)
-            return {'max_distance': 500, 'has_data': False}
-
+            # COLD START: Use location-based defaults
+            return self._get_cold_start_location_preferences(user_profile)
+        
         if user_profile['city_lat'] == 0:
             # No location data for user
-            return {'max_distance': 500, 'has_data': False}
-
+            return {'max_distance': 500, 'has_data': False, 'cold_start': True}
+        
         # Get user's interactions
         user_interactions = self.interactions_df[self.interactions_df['user_id'] == user_id]
-
+        
         # Define positive actions
-        positive_actions = ['love', 'first_message', 'reply',
-                            'request_contact', 'accept_contact', 'smile']
-        positive_interactions = user_interactions[user_interactions['action'].isin(
-            positive_actions)]
-
+        positive_actions = ['love', 'first_message', 'reply', 'request_contact', 'accept_contact', 'smile']
+        positive_interactions = user_interactions[user_interactions['action'].isin(positive_actions)]
+        
         if len(positive_interactions) == 0:
-            return {'max_distance': 500, 'has_data': False}
-
+            # COLD START: No positive interactions yet
+            return self._get_cold_start_location_preferences(user_profile)
+        
         # Get distances to accepted candidates
         accepted_candidate_ids = positive_interactions['candidate_id'].unique()
         accepted_distances = []
-
+        
         for cand_id in accepted_candidate_ids:
             if cand_id in self.profiles_df.index:
                 cand = self.profiles_df.loc[cand_id]
@@ -427,18 +441,18 @@ class GenderAwareRecommendationEngine:
                         cand['city_lat'], cand['city_long']
                     )
                     accepted_distances.append(distance)
-
+        
         if not accepted_distances:
             return {'max_distance': 500, 'has_data': False}
-
+        
         # Calculate distance range with tolerance
         max_accepted = max(accepted_distances)
         avg_accepted = sum(accepted_distances) / len(accepted_distances)
-
+        
         # Add tolerance: 2X max accepted distance (but at least +5km)
         tolerance = max(5, max_accepted)
         max_distance = min(500, max_accepted + tolerance)
-
+        
         return {
             'max_distance': max_distance,
             'avg_distance': avg_accepted,
@@ -446,20 +460,36 @@ class GenderAwareRecommendationEngine:
             'accepted_max': max_accepted,
             'has_data': True
         }
-
+    
     def _is_location_compatible(self, distance_km: float, location_preferences: Dict) -> bool:
         """Check if distance matches user's learned preferences"""
-
+        
         if not location_preferences or not location_preferences.get('has_data', False):
             # No preference data - accept all distances
             return True
-
+        
         if distance_km is None:
             # No distance info - accept (shouldn't happen often)
             return True
-
+        
         return distance_km <= location_preferences['max_distance']
-
+    
+    def _get_cold_start_location_preferences(self, user_profile: pd.Series) -> Dict:
+        """Generate LOOSE location preferences for cold-start users - bio should dominate"""
+        
+        if user_profile['city_lat'] == 0:
+            # No location data - accept all
+            return {'max_distance': 500, 'has_data': False, 'cold_start': True}
+        
+        # LOOSE distance filter for cold-start: bio similarity is PRIMARY, distance is SECONDARY
+        # Use 100 km radius to capture bio matches, not too restrictive
+        return {
+            'max_distance': 100,  # 100 km radius - loose enough for bio to dominate
+            'has_data': True,
+            'cold_start': True,
+            'strategy': 'bio_dominant_loose_distance'
+        }
+    
     def _generate_explanation(
         self,
         user_id: int,
@@ -592,8 +622,7 @@ class GenderAwareRecommendationEngine:
         if user_gender == 'female':
             return 'male'
         else:
-            raise ValueError(
-                f"This system only supports female users, got: {user_gender}")
+            raise ValueError(f"This system only supports female users, got: {user_gender}")
 
     def _truncate_bio(self, bio: str, max_length: int = 100) -> str:
         """Truncate bio text for display"""
@@ -679,8 +708,7 @@ def main():
         interactions_path=args.interactions_path
     )
 
-    print(
-        f"✅ Ready! {len(engine.user_embeddings):,} users, {len(engine.profiles_df):,} profiles")
+    print(f"✅ Ready! {len(engine.user_embeddings):,} users, {len(engine.profiles_df):,} profiles")
 
     # Generate recommendations
     recommendations = engine.get_recommendations(
@@ -691,23 +719,17 @@ def main():
 
     # Display results
     if recommendations:
-        print(
-            f"\n🎯 TOP {len(recommendations)} RECOMMENDATIONS FOR USER {args.user_id}")
+        print(f"\n🎯 TOP {len(recommendations)} RECOMMENDATIONS FOR USER {args.user_id}")
         user_info = engine.profiles_df.loc[args.user_id] if args.user_id in engine.profiles_df.index else None
         if user_info is not None:
-            print(
-                f"User: {user_info['gender'].upper()}, Age: {user_info['age']}")
+            print(f"User: {user_info['gender'].upper()}, Age: {user_info['age']}")
         print("-" * 60)
 
         for i, rec in enumerate(recommendations[:5], 1):  # Show only top 5
-            print(
-                f"{i}. User {rec['user_id']} | Score: {rec['similarity_score']:.3f}")
-            distance_str = f"{rec['distance_km']:.1f} km" if rec.get(
-                'distance_km') is not None else "Distance unknown"
-            print(
-                f"   {rec['gender'].upper()}, Age: {rec['age']}, {distance_str}")
-            print(
-                f"   {rec['bio'][:80]}{'...' if len(rec['bio']) > 80 else ''}")
+            print(f"{i}. User {rec['user_id']} | Score: {rec['similarity_score']:.3f}")
+            distance_str = f"{rec['distance_km']:.1f} km" if rec.get('distance_km') is not None else "Distance unknown"
+            print(f"   {rec['gender'].upper()}, Age: {rec['age']}, {distance_str}")
+            print(f"   {rec['bio'][:80]}{'...' if len(rec['bio']) > 80 else ''}")
             print()
 
         if len(recommendations) > 5:
@@ -721,8 +743,7 @@ def main():
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(recommendations, f, indent=2, ensure_ascii=False)
 
-    print(
-        f"\n✅ Generated {len(recommendations)} recommendations → {output_file}")
+    print(f"\n✅ Generated {len(recommendations)} recommendations → {output_file}")
 
 
 if __name__ == "__main__":

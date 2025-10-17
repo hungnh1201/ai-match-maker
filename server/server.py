@@ -306,7 +306,7 @@ class RecommendationServer:
             logger.error(f"Error getting recommendations: {e}")
 
     def use_full_ai_model(self, user_id, top_k=5):
-        """Try to use the full AI model if available"""
+        """Generate recommendations using pattern-aware engine (supports cold-start users)"""
         try:
             # Import the recommendation script
             from step5_generate_recommendations import GenderAwareRecommendationEngine
@@ -317,14 +317,8 @@ class RecommendationServer:
                 logger.warning("No vector database found in outputs/vector_db")
                 return None
 
-            # Check if model files exist (model is in outputs/models/, not outputs/models/trained/)
-            model_files = glob.glob('outputs/models/best_model.pt')
-            if not model_files:
-                logger.warning(
-                    "No model file found at outputs/models/best_model.pt")
-                return None
-
             # Initialize recommendation engine with pattern-aware filtering
+            # This supports both cold-start and existing users with bio-dominant strategy
             engine = GenderAwareRecommendationEngine(
                 vector_db_dir=vector_db_dirs[0],
                 profiles_path=glob.glob(
@@ -426,23 +420,13 @@ def analyze_user():
 
     # Handle different user scenarios
     if not user_profile:
-        # User ID not found in profiles - completely new user
+        # User ID not found in profiles - return error
         return jsonify({
-            "user_status": {
-                **user_status,
-                "user_type": "new_user",
-                "message": f"User ID {user_id} not found in our database. This is a completely new user."
-            },
-            "behavior_analysis": {
-                "user_type": "new_user",
-                "total_interactions": 0,
-                "message": "No profile or interaction data available for this user."
-            },
-            "recommendations": {
-                "message": "Cannot generate recommendations for new users without profile data.",
-                "suggestion": "User needs to create a profile first."
-            }
-        })
+            "error": "User not found",
+            "message": f"User ID {user_id} does not exist in our database.",
+            "suggestion": "Please check the user ID or create a profile for this user first.",
+            "user_id": user_id
+        }), 404
 
     # User exists in profiles
     if behavior_analysis.get("user_type") == "cold_start":
@@ -475,19 +459,37 @@ def analyze_user():
     else:
         enhanced_profile["location"] = {"has_location": False}
 
+    # Determine recommendation confidence based on user type
+    interaction_count = behavior_analysis.get("total_interactions", 0)
+    has_recommendations = recommendations is not None and len(
+        recommendations) > 0
+
+    # Cold-start users get recommendations based on bio similarity
+    # Existing users get pattern-aware recommendations
+    if interaction_count > 10:
+        rec_confidence = "high"
+        rec_strategy = "pattern-aware (learned preferences)"
+    elif interaction_count > 0:
+        rec_confidence = "medium"
+        rec_strategy = "pattern-learning (emerging preferences)"
+    else:
+        rec_confidence = "medium" if has_recommendations else "low"
+        rec_strategy = "bio-dominant cold-start (loose filters)" if has_recommendations else "no recommendations"
+
     return jsonify({
         "user_status": user_status,
         "user_profile": enhanced_profile,
         "behavior_analysis": behavior_analysis,
         "recommendations": recommendations,
         "analysis_summary": {
-            "can_generate_ai_recommendations": behavior_analysis.get("total_interactions", 0) > 0,
-            "recommendation_confidence": "high" if behavior_analysis.get("total_interactions", 0) > 10 else "medium" if behavior_analysis.get("total_interactions", 0) > 0 else "low",
+            "can_generate_ai_recommendations": has_recommendations,
+            "recommendation_confidence": rec_confidence,
+            "recommendation_strategy": rec_strategy,
             "data_completeness": {
                 "has_profile": True,
-                "has_interactions": behavior_analysis.get("total_interactions", 0) > 0,
+                "has_interactions": interaction_count > 0,
                 "has_location": enhanced_profile["location"]["has_location"],
-                "interaction_count": behavior_analysis.get("total_interactions", 0)
+                "interaction_count": interaction_count
             }
         }
     })
