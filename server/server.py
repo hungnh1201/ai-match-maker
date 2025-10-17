@@ -236,6 +236,58 @@ class RecommendationServer:
                 action_data = interactions_with_profiles[interactions_with_profiles['action'] == action]
                 if len(action_data) > 0:
                     analysis["age_preferences"][action] = action_data['age_group'].value_counts().to_dict()
+            
+            # Detailed age statistics
+            candidate_ages = interactions_with_profiles['age'].dropna()
+            if len(candidate_ages) > 0:
+                analysis["candidate_age_stats"] = {
+                    "min_age": int(candidate_ages.min()),
+                    "max_age": int(candidate_ages.max()),
+                    "average_age": round(candidate_ages.mean(), 1),
+                    "median_age": round(candidate_ages.median(), 1),
+                    "total_candidates": len(candidate_ages)
+                }
+                
+                # Age statistics by action
+                analysis["age_by_action"] = {}
+                for action in interactions_with_profiles['action'].unique():
+                    action_data = interactions_with_profiles[interactions_with_profiles['action'] == action]
+                    action_ages = action_data['age'].dropna()
+                    if len(action_ages) > 0:
+                        analysis["age_by_action"][action] = {
+                            "count": len(action_ages),
+                            "min_age": int(action_ages.min()),
+                            "max_age": int(action_ages.max()),
+                            "average_age": round(action_ages.mean(), 1)
+                        }
+        
+        # Age gap analysis (candidate age - user age)
+        if user_profile and 'age' in user_profile and 'age' in interactions_with_profiles.columns:
+            user_age = user_profile['age']
+            interactions_with_profiles['age_gap'] = interactions_with_profiles['age'] - user_age
+            
+            age_gaps = interactions_with_profiles['age_gap'].dropna()
+            if len(age_gaps) > 0:
+                analysis["age_gap_analysis"] = {
+                    "average_gap": round(age_gaps.mean(), 1),
+                    "median_gap": round(age_gaps.median(), 1),
+                    "min_gap": int(age_gaps.min()),
+                    "max_gap": int(age_gaps.max()),
+                    "user_age": int(user_age),
+                    "description": f"Candidates are on average {abs(round(age_gaps.mean(), 1))} years {'older' if age_gaps.mean() > 0 else 'younger'} than user"
+                }
+                
+                # Age gap by action
+                analysis["age_gap_by_action"] = {}
+                for action in interactions_with_profiles['action'].unique():
+                    action_data = interactions_with_profiles[interactions_with_profiles['action'] == action]
+                    action_gaps = action_data['age_gap'].dropna()
+                    if len(action_gaps) > 0:
+                        analysis["age_gap_by_action"][action] = {
+                            "count": len(action_gaps),
+                            "average_gap": round(action_gaps.mean(), 1),
+                            "median_gap": round(action_gaps.median(), 1)
+                        }
 
         return analysis
 
