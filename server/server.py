@@ -36,7 +36,7 @@ class RecommendationServer:
         """Load the latest data files"""
         try:
             # Load latest profiles
-            profile_files = glob.glob('data/processed/user_profiles_*.parquet')
+            profile_files = glob.glob('outputs/data/user_profiles.parquet')
             if profile_files:
                 latest_profile = max(profile_files, key=os.path.getctime)
                 self.profiles_df = pd.read_parquet(latest_profile)
@@ -48,7 +48,7 @@ class RecommendationServer:
 
             # Load latest interactions
             interaction_files = glob.glob(
-                'data/processed/user_interactions_*.parquet')
+                'outputs/data/user_interactions.parquet')
             if interaction_files:
                 latest_interaction = max(
                     interaction_files, key=os.path.getctime)
@@ -132,7 +132,7 @@ class RecommendationServer:
             available_columns.append('city_lat')
         if 'city_long' in self.profiles_df.columns:
             available_columns.append('city_long')
-            
+
         interactions_with_profiles = user_interactions.merge(
             self.profiles_df[available_columns].rename(
                 columns={'userid': 'candidate_id'}),
@@ -149,7 +149,7 @@ class RecommendationServer:
         distance_analysis = {}
         if user_lat and user_lon and 'city_lat' in interactions_with_profiles.columns:
             from geopy.distance import geodesic
-            
+
             distances = []
             for _, row in interactions_with_profiles.iterrows():
                 if pd.notna(row['city_lat']) and pd.notna(row['city_long']):
@@ -165,7 +165,7 @@ class RecommendationServer:
                         })
                     except Exception:
                         continue
-            
+
             if distances:
                 # Analyze distance patterns by action
                 distance_df = pd.DataFrame(distances)
@@ -174,9 +174,10 @@ class RecommendationServer:
                     "distance_ranges": {},
                     "total_with_distance": len(distances)
                 }
-                
+
                 for action in distance_df['action'].unique():
-                    action_distances = distance_df[distance_df['action'] == action]['distance_km']
+                    action_distances = distance_df[distance_df['action']
+                                                   == action]['distance_km']
                     if len(action_distances) > 0:
                         distance_analysis["average_distance_by_action"][action] = {
                             "avg_km": round(action_distances.mean(), 2),
@@ -184,20 +185,22 @@ class RecommendationServer:
                             "max_km": round(action_distances.max(), 2),
                             "count": len(action_distances)
                         }
-                
+
                 # Distance range analysis
                 distance_df['distance_range'] = pd.cut(
                     distance_df['distance_km'],
                     bins=[0, 5, 15, 30, 50, 100, float('inf')],
-                    labels=['0-5km', '5-15km', '15-30km', '30-50km', '50-100km', '100km+']
+                    labels=['0-5km', '5-15km', '15-30km',
+                            '30-50km', '50-100km', '100km+']
                 )
-                
+
                 for action in distance_df['action'].unique():
                     action_data = distance_df[distance_df['action'] == action]
                     if len(action_data) > 0:
                         if action not in distance_analysis["distance_ranges"]:
                             distance_analysis["distance_ranges"][action] = {}
-                        distance_analysis["distance_ranges"][action] = action_data['distance_range'].value_counts().to_dict()
+                        distance_analysis["distance_ranges"][action] = action_data['distance_range'].value_counts(
+                        ).to_dict()
 
         # Analyze patterns
         analysis = {
@@ -217,9 +220,12 @@ class RecommendationServer:
         # Calculate days active if timestamp data is available
         if 'timestamp' in user_interactions.columns:
             try:
-                first_date = pd.to_datetime(user_interactions['timestamp'].min())
-                last_date = pd.to_datetime(user_interactions['timestamp'].max())
-                analysis["interaction_timeline"]["days_active"] = (last_date - first_date).days + 1
+                first_date = pd.to_datetime(
+                    user_interactions['timestamp'].min())
+                last_date = pd.to_datetime(
+                    user_interactions['timestamp'].max())
+                analysis["interaction_timeline"]["days_active"] = (
+                    last_date - first_date).days + 1
             except Exception:
                 pass
 
@@ -235,8 +241,9 @@ class RecommendationServer:
             for action in ['accept_contact', 'skip', 'refuse_contact']:
                 action_data = interactions_with_profiles[interactions_with_profiles['action'] == action]
                 if len(action_data) > 0:
-                    analysis["age_preferences"][action] = action_data['age_group'].value_counts().to_dict()
-            
+                    analysis["age_preferences"][action] = action_data['age_group'].value_counts(
+                    ).to_dict()
+
             # Detailed age statistics
             candidate_ages = interactions_with_profiles['age'].dropna()
             if len(candidate_ages) > 0:
@@ -247,7 +254,7 @@ class RecommendationServer:
                     "median_age": round(candidate_ages.median(), 1),
                     "total_candidates": len(candidate_ages)
                 }
-                
+
                 # Age statistics by action
                 analysis["age_by_action"] = {}
                 for action in interactions_with_profiles['action'].unique():
@@ -260,12 +267,12 @@ class RecommendationServer:
                             "max_age": int(action_ages.max()),
                             "average_age": round(action_ages.mean(), 1)
                         }
-        
+
         # Age gap analysis (candidate age - user age)
         if user_profile and 'age' in user_profile and 'age' in interactions_with_profiles.columns:
             user_age = user_profile['age']
             interactions_with_profiles['age_gap'] = interactions_with_profiles['age'] - user_age
-            
+
             age_gaps = interactions_with_profiles['age_gap'].dropna()
             if len(age_gaps) > 0:
                 analysis["age_gap_analysis"] = {
@@ -276,7 +283,7 @@ class RecommendationServer:
                     "user_age": int(user_age),
                     "description": f"Candidates are on average {abs(round(age_gaps.mean(), 1))} years {'older' if age_gaps.mean() > 0 else 'younger'} than user"
                 }
-                
+
                 # Age gap by action
                 analysis["age_gap_by_action"] = {}
                 for action in interactions_with_profiles['action'].unique():
@@ -297,7 +304,6 @@ class RecommendationServer:
             return self.use_full_ai_model(user_id, top_k)
         except Exception as e:
             logger.error(f"Error getting recommendations: {e}")
-            return self.get_similarity_recommendations(user_id, top_k)
 
     def use_full_ai_model(self, user_id, top_k=5):
         """Try to use the full AI model if available"""
@@ -308,18 +314,23 @@ class RecommendationServer:
             # Find latest vector database
             vector_db_dirs = glob.glob('outputs/vector_db')
             if not vector_db_dirs:
+                logger.warning("No vector database found in outputs/vector_db")
                 return None
 
-            # Check if model files exist
-            model_files = glob.glob('models/trained/best_model.pt')
+            # Check if model files exist (model is in outputs/models/, not outputs/models/trained/)
+            model_files = glob.glob('outputs/models/best_model.pt')
             if not model_files:
+                logger.warning(
+                    "No model file found at outputs/models/best_model.pt")
                 return None
 
-            # Initialize recommendation engine
+            # Initialize recommendation engine with pattern-aware filtering
             engine = GenderAwareRecommendationEngine(
                 vector_db_dir=vector_db_dirs[0],
                 profiles_path=glob.glob(
-                    'data/processed/user_profiles_*.parquet')[-1]
+                    'outputs/data/user_profiles.parquet')[-1],
+                interactions_path=glob.glob(
+                    'outputs/data/user_interactions.parquet')[-1]
             )
 
             # Get recommendations
@@ -355,60 +366,6 @@ class RecommendationServer:
             logger.error(f"Full AI model not available: {e}")
             return None
 
-    def get_similarity_recommendations(self, user_id, top_k=5):
-        """Fallback similarity-based recommendations"""
-        user_profile = self.get_user_profile(user_id)
-        if not user_profile:
-            return {"error": f"User {user_id} not found"}
-
-        # Get opposite gender candidates
-        user_gender = user_profile['gender']
-        target_gender = 'male' if user_gender == 'female' else 'female'
-
-        candidates = self.profiles_df[self.profiles_df['gender'] == target_gender].copy(
-        )
-
-        if len(candidates) == 0:
-            return {"error": "No candidates found"}
-
-        # Simple age-based similarity scoring
-        user_age = user_profile['age']
-        candidates['age_similarity'] = 1 / \
-            (1 + abs(candidates['age'] - user_age) / 10)
-
-        # Add some randomness for variety
-        candidates['random_factor'] = np.random.uniform(
-            0.8, 1.2, len(candidates))
-        candidates['similarity_score'] = candidates['age_similarity'] * \
-            candidates['random_factor']
-
-        # Sort by similarity and get top recommendations
-        top_candidates = candidates.nlargest(top_k, 'similarity_score')
-
-        recommendations = []
-        user_coords = (user_profile.get('city_lat', 48.8566),
-                       user_profile.get('city_long', 2.3522))
-
-        for _, candidate in top_candidates.iterrows():
-            candidate_coords = (candidate.get(
-                'city_lat', 48.8566), candidate.get('city_long', 2.3522))
-
-            try:
-                distance = geodesic(user_coords, candidate_coords).kilometers
-            except:
-                # Random distance if calculation fails
-                distance = np.random.uniform(2, 25)
-
-            recommendations.append({
-                'candidate_id': int(candidate['userid']),
-                'age': int(candidate['age']),
-                'bio': candidate['bio'],
-                'similarity_score': round(candidate['similarity_score'], 3),
-                'distance_km': round(distance, 1)
-            })
-
-        return recommendations
-
 
 # Initialize server
 rec_server = RecommendationServer()
@@ -433,7 +390,7 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-
+    print(username, password)
     if username in VALID_CREDENTIALS and VALID_CREDENTIALS[username] == password:
         return jsonify({"success": True, "message": "Login successful"})
     else:
@@ -456,17 +413,17 @@ def analyze_user():
 
     # Check if user exists in profiles
     user_profile = rec_server.get_user_profile(user_id)
-    
+
     # Analyze behavior (this will determine if user is cold_start or existing)
     behavior_analysis = rec_server.analyze_user_behavior(user_id)
-    
+
     # Determine user status
     user_status = {
         "exists_in_profiles": user_profile is not None,
         "user_type": behavior_analysis.get("user_type", "unknown"),
         "profile_completeness": "complete" if user_profile else "missing"
     }
-    
+
     # Handle different user scenarios
     if not user_profile:
         # User ID not found in profiles - completely new user
@@ -486,7 +443,7 @@ def analyze_user():
                 "suggestion": "User needs to create a profile first."
             }
         })
-    
+
     # User exists in profiles
     if behavior_analysis.get("user_type") == "cold_start":
         # User has profile but no interactions yet
@@ -507,7 +464,7 @@ def analyze_user():
         "gender": user_profile['gender'],
         "bio": user_profile['bio']
     }
-    
+
     # Add location info if available
     if 'city_lat' in user_profile and 'city_long' in user_profile:
         enhanced_profile["location"] = {

@@ -1,0 +1,7 @@
+{
+  "user_embeddings_count": 15144,
+  "candidate_embeddings_count": 9297,
+  "embedding_dimension": 128,
+  "model_type": "cross_attention_recommendation",
+  "gender_separated": true
+}

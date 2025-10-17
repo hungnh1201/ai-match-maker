@@ -2,6 +2,7 @@ flask==3.0.0
 flask-cors==4.0.0
 pandas==2.1.4
 numpy==1.26.4
+pyarrow==14.0.1
 torch==2.1.0
 transformers==4.35.2
 sentence-transformers==2.2.2

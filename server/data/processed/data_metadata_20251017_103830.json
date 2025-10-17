@@ -1,8 +1,0 @@
-{
-  "timestamp": "20251017_103830",
-  "total_interactions": 180348,
-  "total_profiles": 15144,
-  "unique_users": 4404,
-  "interactions_file": "outputs/data/user_interactions_20251017_103830.parquet",
-  "profiles_file": "outputs/data/user_profiles_20251017_103830.parquet"
-}

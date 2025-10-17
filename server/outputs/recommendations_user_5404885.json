@@ -1,0 +1,542 @@
+[
+  {
+    "user_id": 5409057,
+    "similarity_score": 1.3539440631866455,
+    "gender": "male",
+    "age": 21,
+    "bio": " سلام عليكم ورحمة الله تعالى وبركاته اريد علاقه جادة احب تكوين اسرة",
+    "city_lat": 0.622367,
+    "city_long": -0.009105,
+    "distance_km": 32.79960411901263,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3539440631866455,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (21 vs your 26), nearby (32.8km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 21,
+        "age_difference": 5,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 32.8,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 67,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5423382,
+    "similarity_score": 1.3543705940246582,
+    "gender": "male",
+    "age": 32,
+    "bio": "بسم الله الرحمن الرحيم \n\"\nوَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْ...",
+    "city_lat": 0.756284,
+    "city_long": 0.093569,
+    "distance_km": 14.410633951937168,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3543705940246582,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, compatible age range (32 vs your 26), very close (14.4km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 32,
+        "age_difference": 6,
+        "compatibility": "good"
+      },
+      "location_compatibility": {
+        "distance_km": 14.4,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 214,
+        "style_match": "different"
+      }
+    }
+  },
+  {
+    "user_id": 5424365,
+    "similarity_score": 1.3545701503753662,
+    "gender": "male",
+    "age": 37,
+    "bio": "دع الأمور تجري في أعنتها ولا تبيتن إلا خالية البال بين غمضة عين وإنتباهتها يغر الله من حال الى ح...",
+    "city_lat": 0.763199,
+    "city_long": 0.082197,
+    "distance_km": 15.063218953240781,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3545701503753662,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, different age (37 vs your 26), very close (15.1km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 37,
+        "age_difference": 11,
+        "compatibility": "fair"
+      },
+      "location_compatibility": {
+        "distance_km": 15.1,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 102,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5422676,
+    "similarity_score": 1.354649543762207,
+    "gender": "male",
+    "age": 27,
+    "bio": "انا ابحث عن انسانه تكون لي خير زوجه وساكون لها وطن وخير الزوج وتكون مطيعه ومثقفه",
+    "city_lat": 0.528771,
+    "city_long": 0.554078,
+    "distance_km": 51.7904001160154,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.354649543762207,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (27 vs your 26), moderate distance (51.8km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 27,
+        "age_difference": 1,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 51.8,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "good"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 80,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5414590,
+    "similarity_score": 1.3547229766845703,
+    "gender": "male",
+    "age": 31,
+    "bio": "سلام عليكم ورحمة الله وبركاته نرجوا التعرف على فتاة متدينة و تقية ",
+    "city_lat": 0.641099,
+    "city_long": 0.053886,
+    "distance_km": 26.601512597530125,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3547229766845703,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (31 vs your 26), nearby (26.6km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 31,
+        "age_difference": 5,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 26.6,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 66,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5413759,
+    "similarity_score": 1.354796290397644,
+    "gender": "male",
+    "age": 33,
+    "bio": "سلام عليكم اتمنى لكم التوفيق والسداد للجميع اموركم و شكرا \nلي مهتمة بعلاقة طويلة الامد تتواصل معي ",
+    "city_lat": 0.883712,
+    "city_long": 0.053382,
+    "distance_km": 17.281485834069915,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.354796290397644,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, compatible age range (33 vs your 26), very close (17.3km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 33,
+        "age_difference": 7,
+        "compatibility": "good"
+      },
+      "location_compatibility": {
+        "distance_km": 17.3,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 98,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5416910,
+    "similarity_score": 1.3548569679260254,
+    "gender": "male",
+    "age": 30,
+    "bio": ":اَلْلّهُم أَنْت رَبِّي لا إله إلا أَنْت خَلَقْتَنِي و أَنَا عبدك و أنا على عهدك و وعدك ما إس...",
+    "city_lat": 0.642165,
+    "city_long": 0.057368,
+    "distance_km": 26.272811993065126,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3548569679260254,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (30 vs your 26), nearby (26.3km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 30,
+        "age_difference": 4,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 26.3,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 208,
+        "style_match": "different"
+      }
+    }
+  },
+  {
+    "user_id": 5427818,
+    "similarity_score": 1.3549048900604248,
+    "gender": "male",
+    "age": 26,
+    "bio": "أحاول الابتعاد غرورى فإنه سئ جدا ان تشعر أنك تهتم بالناس بدون أن تشعر وكان الهدف من حياتنا هو ا...",
+    "city_lat": 0.524692,
+    "city_long": 0.54541,
+    "distance_km": 51.360241799772595,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3549048900604248,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (26 vs your 26), moderate distance (51.4km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 26,
+        "age_difference": 0,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 51.4,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "good"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 110,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5409651,
+    "similarity_score": 1.3553041219711304,
+    "gender": "male",
+    "age": 35,
+    "bio": "احبك حتي تكوني جميلة للغاية أريد ان اتزوجك بكل سرور واعشق كل بنات",
+    "city_lat": 0.611532,
+    "city_long": 0.165543,
+    "distance_km": 24.68153300588458,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3553041219711304,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, compatible age range (35 vs your 26), very close (24.7km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 35,
+        "age_difference": 9,
+        "compatibility": "good"
+      },
+      "location_compatibility": {
+        "distance_km": 24.7,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 66,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5410477,
+    "similarity_score": 1.355513334274292,
+    "gender": "male",
+    "age": 36,
+    "bio": "خلوق احب الحياة،نحب الخير الى الجميع،بالتوفيق?????????????????????????????",
+    "city_lat": 0.641099,
+    "city_long": 0.053886,
+    "distance_km": 26.601512597530125,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.355513334274292,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, compatible age range (36 vs your 26), nearby (26.6km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 36,
+        "age_difference": 10,
+        "compatibility": "good"
+      },
+      "location_compatibility": {
+        "distance_km": 26.6,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 74,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5417893,
+    "similarity_score": 1.3557567596435547,
+    "gender": "male",
+    "age": 27,
+    "bio": "لا إله الا انت سبحانك اني كنت من الظالمين استغفر الله واتوب اليه ",
+    "city_lat": 0.7819,
+    "city_long": 0.083414,
+    "distance_km": 14.014753156406652,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3557567596435547,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (27 vs your 26), very close (14.0km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 27,
+        "age_difference": 1,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 14.0,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 66,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5421563,
+    "similarity_score": 1.3558231592178345,
+    "gender": "male",
+    "age": 32,
+    "bio": "الحمد الله على نعمة الإسلام ?ا ربي أوصيك ب أمي خيرآ ،، فإن سألتك أعطها ..\nوإن دعتك أجبها ،،...",
+    "city_lat": 0.64074,
+    "city_long": 0.04961,
+    "distance_km": 26.924962994779783,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3558231592178345,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, compatible age range (32 vs your 26), nearby (26.9km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 32,
+        "age_difference": 6,
+        "compatibility": "good"
+      },
+      "location_compatibility": {
+        "distance_km": 26.9,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 190,
+        "style_match": "different"
+      }
+    }
+  },
+  {
+    "user_id": 5422837,
+    "similarity_score": 1.3561322689056396,
+    "gender": "male",
+    "age": 34,
+    "bio": "رجل جاد وطموح، يبحث عن شريكة حياة لتكوين أسرة مبنية على الحب والاحترام والتفاهم\n",
+    "city_lat": 0.530932,
+    "city_long": -0.167519,
+    "distance_km": 52.708411460900585,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3561322689056396,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, compatible age range (34 vs your 26), moderate distance (52.7km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 34,
+        "age_difference": 8,
+        "compatibility": "good"
+      },
+      "location_compatibility": {
+        "distance_km": 52.7,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "good"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 81,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5409107,
+    "similarity_score": 1.3562326431274414,
+    "gender": "male",
+    "age": 30,
+    "bio": "الحمد لله حمدا كثيرا طيبا مباركا فيه \nربي لاتذرني فردا وانت خير الوارثين ",
+    "city_lat": 0.852007,
+    "city_long": 0.043523,
+    "distance_km": 17.50680948230161,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3562326431274414,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (30 vs your 26), very close (17.5km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 30,
+        "age_difference": 4,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 17.5,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "excellent"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 73,
+        "style_match": "similar"
+      }
+    }
+  },
+  {
+    "user_id": 5409726,
+    "similarity_score": 1.3562840223312378,
+    "gender": "male",
+    "age": 21,
+    "bio": "اريد البنات ول اولاد وانا اعمل صانع احزيع وراتبي قليل واعيش في سوريا\n",
+    "city_lat": 0.631831,
+    "city_long": 0.648585,
+    "distance_km": 54.611484373965375,
+    "recommendation_type": "cross_attention_gender_aware",
+    "explanation": {
+      "method": "cross_attention_gender_aware",
+      "similarity_score": 1.3562840223312378,
+      "user_gender": "female",
+      "candidate_gender": "male",
+      "explanation_text": "Recommended male profile, very similar age (21 vs your 26), moderate distance (54.6km), with meaningful bio, - strong pattern match to profiles you've interacted with",
+      "confidence": "high",
+      "age_compatibility": {
+        "user_age": 26,
+        "candidate_age": 21,
+        "age_difference": 5,
+        "compatibility": "excellent"
+      },
+      "location_compatibility": {
+        "distance_km": 54.6,
+        "user_city": "Unknown",
+        "candidate_city": "Unknown",
+        "compatibility": "good"
+      },
+      "communication_style": {
+        "user_bio_length": 62,
+        "candidate_bio_length": 69,
+        "style_match": "similar"
+      }
+    }
+  }
+]

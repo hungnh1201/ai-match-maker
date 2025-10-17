@@ -18,18 +18,29 @@ RUN pip install --no-cache-dir \
     -r requirements.txt || \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy application code
 COPY server.py .
 COPY templates/ templates/
 COPY scripts/ scripts/
-COPY models/ models/
-COPY data/ data/
 
-# Copy pre-trained model files and outputs
+
+# Copy pre-trained models, embeddings, and vector database from outputs/
+# This includes:
+# - outputs/data/ (processed data for recommendations)
+# - outputs/embeddings/ (user embeddings)
+# - outputs/models/ (trained models)
+# - outputs/vector_db/ (FAISS vector database and configs)
 COPY outputs/ outputs/
 
-# Ensure all output directories exist
-RUN mkdir -p outputs/data outputs/embeddings outputs/vector_db
+# Ensure all output directories exist (in case some are empty)
+RUN mkdir -p outputs/data outputs/embeddings outputs/models outputs/vector_db
+
+# Create symlinks for vector_db files (script expects latest_ prefix)
+RUN cd outputs/vector_db && \
+    ln -sf gender_aware_vector_db_config.json latest_config.json && \
+    ln -sf male_candidate_ids.pkl latest_male_candidate_ids.pkl && \
+    ln -sf male_candidates_index.faiss latest_male_index.faiss && \
+    ln -sf user_embeddings.pkl latest_user_embeddings.pkl
 
 # Set environment variables
 ENV APP_ENV=production

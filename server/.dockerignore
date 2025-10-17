@@ -1,47 +1,40 @@
-# Ignore unnecessary files to reduce Docker image size
+# Git
 .git
 .gitignore
-README.md
-Dockerfile*
-.dockerignore
-node_modules
-npm-debug.log
-.nyc_output
-.env
-.DS_Store
-*.log
 
-# Ignore large development files
+# Documentation
 *.md
-FIXED_DEPLOY.md
-RAILWAY_DEPLOY.md
-FIX_SUMMARY.md
 
-# Ignore backup and temporary files
-*.bak
-*.tmp
-*.swp
-*~
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Ignore development configs
-nixpacks.toml
-runtime.txt
-start.sh
-
-# Exclude runtime outputs and data that should be generated at runtime
-# outputs/
-# data/processed/
-
-# Exclude development files
-.pytest_cache/
-.coverage
+# IDE
 .vscode/
 .idea/
+.DS_Store
 
-# Exclude logs
+# Environment
+.env
+.env.*
+
+# Logs
 *.log
 logs/
 
-# Exclude temporary files
-tmp/
-temp/
+# Deployment configs (not needed in container)
+nixpacks.toml
+railway.toml
+railway.json
+render.yaml
+Procfile
+runtime.txt
+deploy-*.sh
+requirements-docker.txt
+
+# Unused code folder
+models/
+
+# Keep: scripts/, templates/, outputs/
