@@ -126,8 +126,15 @@ class RecommendationServer:
             }
 
         # Merge with candidate profiles to get full profile info
+        # Check what columns are available in profiles_df
+        available_columns = ['userid', 'age', 'gender']
+        if 'city_lat' in self.profiles_df.columns:
+            available_columns.append('city_lat')
+        if 'city_long' in self.profiles_df.columns:
+            available_columns.append('city_long')
+            
         interactions_with_profiles = user_interactions.merge(
-            self.profiles_df[['userid', 'age', 'gender', 'latitude', 'longitude']].rename(
+            self.profiles_df[available_columns].rename(
                 columns={'userid': 'candidate_id'}),
             on='candidate_id',
             how='left'
@@ -135,21 +142,21 @@ class RecommendationServer:
 
         # Get user's location for distance calculations
         user_profile = self.get_user_profile(user_id)
-        user_lat = user_profile.get('latitude') if user_profile else None
-        user_lon = user_profile.get('longitude') if user_profile else None
+        user_lat = user_profile.get('city_lat') if user_profile else None
+        user_lon = user_profile.get('city_long') if user_profile else None
 
         # Calculate distances if location data is available
         distance_analysis = {}
-        if user_lat and user_lon and 'latitude' in interactions_with_profiles.columns:
+        if user_lat and user_lon and 'city_lat' in interactions_with_profiles.columns:
             from geopy.distance import geodesic
             
             distances = []
             for _, row in interactions_with_profiles.iterrows():
-                if pd.notna(row['latitude']) and pd.notna(row['longitude']):
+                if pd.notna(row['city_lat']) and pd.notna(row['city_long']):
                     try:
                         distance = geodesic(
                             (user_lat, user_lon),
-                            (row['latitude'], row['longitude'])
+                            (row['city_lat'], row['city_long'])
                         ).kilometers
                         distances.append({
                             'candidate_id': row['candidate_id'],
@@ -450,10 +457,10 @@ def analyze_user():
     }
     
     # Add location info if available
-    if 'latitude' in user_profile and 'longitude' in user_profile:
+    if 'city_lat' in user_profile and 'city_long' in user_profile:
         enhanced_profile["location"] = {
-            "latitude": user_profile['latitude'],
-            "longitude": user_profile['longitude'],
+            "latitude": user_profile['city_lat'],
+            "longitude": user_profile['city_long'],
             "has_location": True
         }
     else:
