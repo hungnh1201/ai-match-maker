@@ -1,0 +1,13 @@
+{
+  "timestamp": "20251017_105707",
+  "embedding_dimension": 128,
+  "num_male_candidates": 9297,
+  "num_female_candidates": 0,
+  "num_users": 15144,
+  "female_users_only": true,
+  "files": {
+    "male_index": "male_candidates_index_20251017_105707.faiss",
+    "male_candidate_ids": "male_candidate_ids_20251017_105707.pkl",
+    "user_embeddings": "user_embeddings_20251017_105707.pkl"
+  }
+}

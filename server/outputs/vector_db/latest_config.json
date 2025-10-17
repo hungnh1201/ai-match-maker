@@ -1,13 +1,1 @@
-{
-  "timestamp": "20251016_155015",
-  "embedding_dimension": 128,
-  "num_male_candidates": 9297,
-  "num_female_candidates": 0,
-  "num_users": 15144,
-  "female_users_only": true,
-  "files": {
-    "male_index": "male_candidates_index_20251016_155015.faiss",
-    "male_candidate_ids": "male_candidate_ids_20251016_155015.pkl",
-    "user_embeddings": "user_embeddings_20251016_155015.pkl"
-  }
-}
+gender_aware_vector_db_config_20251017_105707.json
