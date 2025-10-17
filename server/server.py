@@ -112,30 +112,109 @@ class RecommendationServer:
         return user_data.iloc[0].to_dict()
 
     def analyze_user_behavior(self, user_id):
-        """Analyze user interaction patterns"""
+        """Analyze user interaction patterns with distance analysis"""
         if self.interactions_df is None:
             return {"error": "No interaction data available"}
 
         user_interactions = self.interactions_df[self.interactions_df['user_id'] == user_id]
 
         if len(user_interactions) == 0:
-            return {"message": "No interaction history found for this user"}
+            return {
+                "message": "No interaction history found for this user",
+                "user_type": "cold_start",
+                "total_interactions": 0
+            }
 
-        # Merge with candidate profiles to get age info
+        # Merge with candidate profiles to get full profile info
         interactions_with_profiles = user_interactions.merge(
-            self.profiles_df[['userid', 'age', 'gender']].rename(
+            self.profiles_df[['userid', 'age', 'gender', 'latitude', 'longitude']].rename(
                 columns={'userid': 'candidate_id'}),
             on='candidate_id',
             how='left'
         )
 
+        # Get user's location for distance calculations
+        user_profile = self.get_user_profile(user_id)
+        user_lat = user_profile.get('latitude') if user_profile else None
+        user_lon = user_profile.get('longitude') if user_profile else None
+
+        # Calculate distances if location data is available
+        distance_analysis = {}
+        if user_lat and user_lon and 'latitude' in interactions_with_profiles.columns:
+            from geopy.distance import geodesic
+            
+            distances = []
+            for _, row in interactions_with_profiles.iterrows():
+                if pd.notna(row['latitude']) and pd.notna(row['longitude']):
+                    try:
+                        distance = geodesic(
+                            (user_lat, user_lon),
+                            (row['latitude'], row['longitude'])
+                        ).kilometers
+                        distances.append({
+                            'candidate_id': row['candidate_id'],
+                            'action': row['action'],
+                            'distance_km': round(distance, 2)
+                        })
+                    except Exception:
+                        continue
+            
+            if distances:
+                # Analyze distance patterns by action
+                distance_df = pd.DataFrame(distances)
+                distance_analysis = {
+                    "average_distance_by_action": {},
+                    "distance_ranges": {},
+                    "total_with_distance": len(distances)
+                }
+                
+                for action in distance_df['action'].unique():
+                    action_distances = distance_df[distance_df['action'] == action]['distance_km']
+                    if len(action_distances) > 0:
+                        distance_analysis["average_distance_by_action"][action] = {
+                            "avg_km": round(action_distances.mean(), 2),
+                            "min_km": round(action_distances.min(), 2),
+                            "max_km": round(action_distances.max(), 2),
+                            "count": len(action_distances)
+                        }
+                
+                # Distance range analysis
+                distance_df['distance_range'] = pd.cut(
+                    distance_df['distance_km'],
+                    bins=[0, 5, 15, 30, 50, 100, float('inf')],
+                    labels=['0-5km', '5-15km', '15-30km', '30-50km', '50-100km', '100km+']
+                )
+                
+                for action in distance_df['action'].unique():
+                    action_data = distance_df[distance_df['action'] == action]
+                    if len(action_data) > 0:
+                        if action not in distance_analysis["distance_ranges"]:
+                            distance_analysis["distance_ranges"][action] = {}
+                        distance_analysis["distance_ranges"][action] = action_data['distance_range'].value_counts().to_dict()
+
         # Analyze patterns
         analysis = {
+            "user_type": "existing_user",
             "total_interactions": len(user_interactions),
             "action_breakdown": user_interactions['action'].value_counts().to_dict(),
             "age_preferences": {},
-            "gender_interactions": interactions_with_profiles['gender'].value_counts().to_dict() if 'gender' in interactions_with_profiles.columns else {}
+            "gender_interactions": interactions_with_profiles['gender'].value_counts().to_dict() if 'gender' in interactions_with_profiles.columns else {},
+            "distance_patterns": distance_analysis,
+            "interaction_timeline": {
+                "first_interaction": user_interactions['timestamp'].min() if 'timestamp' in user_interactions.columns else None,
+                "last_interaction": user_interactions['timestamp'].max() if 'timestamp' in user_interactions.columns else None,
+                "days_active": None
+            }
         }
+
+        # Calculate days active if timestamp data is available
+        if 'timestamp' in user_interactions.columns:
+            try:
+                first_date = pd.to_datetime(user_interactions['timestamp'].min())
+                last_date = pd.to_datetime(user_interactions['timestamp'].max())
+                analysis["interaction_timeline"]["days_active"] = (last_date - first_date).days + 1
+            except Exception:
+                pass
 
         # Age group analysis
         if 'age' in interactions_with_profiles.columns:
@@ -149,8 +228,7 @@ class RecommendationServer:
             for action in ['accept_contact', 'skip', 'refuse_contact']:
                 action_data = interactions_with_profiles[interactions_with_profiles['action'] == action]
                 if len(action_data) > 0:
-                    analysis["age_preferences"][action] = action_data['age_group'].value_counts(
-                    ).to_dict()
+                    analysis["age_preferences"][action] = action_data['age_group'].value_counts().to_dict()
 
         return analysis
 
@@ -305,7 +383,7 @@ def login():
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_user():
-    """Analyze user and get recommendations"""
+    """Analyze user and get recommendations with detailed user type detection"""
     data = request.get_json()
     user_id = data.get('user_id')
 
@@ -317,26 +395,85 @@ def analyze_user():
     except ValueError:
         return jsonify({"error": "User ID must be a number"}), 400
 
-    # Get user profile
+    # Check if user exists in profiles
     user_profile = rec_server.get_user_profile(user_id)
-    if not user_profile:
-        return jsonify({"error": f"User {user_id} not found"}), 404
-
-    # Analyze behavior
+    
+    # Analyze behavior (this will determine if user is cold_start or existing)
     behavior_analysis = rec_server.analyze_user_behavior(user_id)
+    
+    # Determine user status
+    user_status = {
+        "exists_in_profiles": user_profile is not None,
+        "user_type": behavior_analysis.get("user_type", "unknown"),
+        "profile_completeness": "complete" if user_profile else "missing"
+    }
+    
+    # Handle different user scenarios
+    if not user_profile:
+        # User ID not found in profiles - completely new user
+        return jsonify({
+            "user_status": {
+                **user_status,
+                "user_type": "new_user",
+                "message": f"User ID {user_id} not found in our database. This is a completely new user."
+            },
+            "behavior_analysis": {
+                "user_type": "new_user",
+                "total_interactions": 0,
+                "message": "No profile or interaction data available for this user."
+            },
+            "recommendations": {
+                "message": "Cannot generate recommendations for new users without profile data.",
+                "suggestion": "User needs to create a profile first."
+            }
+        })
+    
+    # User exists in profiles
+    if behavior_analysis.get("user_type") == "cold_start":
+        # User has profile but no interactions yet
+        user_status["user_type"] = "cold_start"
+        user_status["message"] = "User has a profile but no interaction history yet."
+    else:
+        # Existing user with interaction history
+        user_status["user_type"] = "existing_user"
+        user_status["message"] = f"Active user with {behavior_analysis.get('total_interactions', 0)} interactions."
 
     # Get recommendations
     recommendations = rec_server.get_recommendations(user_id, top_k=5)
 
+    # Enhanced user profile information
+    enhanced_profile = {
+        "userid": user_profile['userid'],
+        "age": user_profile['age'],
+        "gender": user_profile['gender'],
+        "bio": user_profile['bio']
+    }
+    
+    # Add location info if available
+    if 'latitude' in user_profile and 'longitude' in user_profile:
+        enhanced_profile["location"] = {
+            "latitude": user_profile['latitude'],
+            "longitude": user_profile['longitude'],
+            "has_location": True
+        }
+    else:
+        enhanced_profile["location"] = {"has_location": False}
+
     return jsonify({
-        "user_profile": {
-            "userid": user_profile['userid'],
-            "age": user_profile['age'],
-            "gender": user_profile['gender'],
-            "bio": user_profile['bio']
-        },
+        "user_status": user_status,
+        "user_profile": enhanced_profile,
         "behavior_analysis": behavior_analysis,
-        "recommendations": recommendations
+        "recommendations": recommendations,
+        "analysis_summary": {
+            "can_generate_ai_recommendations": behavior_analysis.get("total_interactions", 0) > 0,
+            "recommendation_confidence": "high" if behavior_analysis.get("total_interactions", 0) > 10 else "medium" if behavior_analysis.get("total_interactions", 0) > 0 else "low",
+            "data_completeness": {
+                "has_profile": True,
+                "has_interactions": behavior_analysis.get("total_interactions", 0) > 0,
+                "has_location": enhanced_profile["location"]["has_location"],
+                "interaction_count": behavior_analysis.get("total_interactions", 0)
+            }
+        }
     })
 
 

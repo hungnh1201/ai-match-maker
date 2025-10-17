@@ -459,30 +459,6 @@
                 <p class="app-subtitle">Smart Dating Recommendations Powered by AI</p>
             </div>
             
-            <div class="credentials-card">
-                <div class="credentials-title">
-                    <i class="fas fa-key"></i>
-                    Demo Credentials
-                </div>
-                <div class="credential-item">
-                    <span>Username:</span>
-                    <code class="credential-code">admin</code>
-                    <span>Password:</span>
-                    <code class="credential-code">password123</code>
-                </div>
-                <div class="credential-item">
-                    <span>Username:</span>
-                    <code class="credential-code">demo</code>
-                    <span>Password:</span>
-                    <code class="credential-code">demo123</code>
-                </div>
-                <div class="credential-item">
-                    <span>Username:</span>
-                    <code class="credential-code">test</code>
-                    <span>Password:</span>
-                    <code class="credential-code">test123</code>
-                </div>
-            </div>
             
             <div class="form-group">
                 <label class="form-label" for="username">
@@ -666,9 +642,50 @@
         }
         
         function displayResults(data) {
-            // User Profile
+            // Handle different user types
+            if (data.user_status && data.user_status.user_type === 'new_user') {
+                // New user - show appropriate message
+                document.getElementById('userProfileContent').innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-user-plus"></i>
+                        <span>${data.user_status.message}</span>
+                    </div>
+                `;
+                document.getElementById('behaviorContent').innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-info-circle"></i>
+                        <span>${data.behavior_analysis.message}</span>
+                    </div>
+                `;
+                document.getElementById('recommendationsContent').innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>${data.recommendations.message}</span>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; color: #86efac;">
+                        <strong>Suggestion:</strong> ${data.recommendations.suggestion}
+                    </div>
+                `;
+                document.getElementById('results').classList.remove('hidden');
+                return;
+            }
+
+            // User Profile with enhanced information
             const userProfile = data.user_profile;
+            const userStatus = data.user_status;
+            
+            let userTypeColor = userStatus.user_type === 'cold_start' ? 'var(--warning)' : 
+                               userStatus.user_type === 'existing_user' ? 'var(--success)' : 'var(--primary)';
+            
             document.getElementById('userProfileContent').innerHTML = `
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(15, 23, 42, 0.4); border-radius: 8px; border-left: 4px solid ${userTypeColor};">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-user-circle" style="color: ${userTypeColor};"></i>
+                        <strong style="color: var(--text-primary); text-transform: capitalize;">${userStatus.user_type.replace('_', ' ')} User</strong>
+                    </div>
+                    <p style="color: var(--text-secondary); margin: 0;">${userStatus.message}</p>
+                </div>
+                
                 <div class="stat-grid">
                     <div class="stat-card">
                         <div class="stat-number">${userProfile.userid}</div>
@@ -681,6 +698,10 @@
                     <div class="stat-card">
                         <div class="stat-number">${userProfile.gender}</div>
                         <div class="stat-label">Gender</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${userProfile.location && userProfile.location.has_location ? '✓' : '✗'}</div>
+                        <div class="stat-label">Has Location</div>
                     </div>
                 </div>
                 <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(15, 23, 42, 0.4); border-radius: 8px;">
@@ -714,6 +735,49 @@
                 
                 behaviorHtml += '</div></div>';
                 
+                // Distance patterns
+                if (behavior.distance_patterns && behavior.distance_patterns.total_with_distance > 0) {
+                    behaviorHtml += '<div style="margin-top: 2rem;"><h3 style="color: var(--text-primary); margin-bottom: 1rem;"><i class="fas fa-map-marker-alt"></i> Distance Interaction Patterns</h3>';
+                    
+                    const distanceData = behavior.distance_patterns;
+                    behaviorHtml += `<p style="color: var(--text-secondary); margin-bottom: 1rem;">Analyzed ${distanceData.total_with_distance} interactions with location data</p>`;
+                    
+                    // Average distances by action
+                    if (distanceData.average_distance_by_action && Object.keys(distanceData.average_distance_by_action).length > 0) {
+                        behaviorHtml += '<div style="margin: 1rem 0;"><h4 style="color: var(--secondary); margin-bottom: 0.5rem;">Average Distance by Action:</h4><div class="stat-grid">';
+                        for (const [action, stats] of Object.entries(distanceData.average_distance_by_action)) {
+                            const actionName = action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            behaviorHtml += `
+                                <div class="stat-card" style="border-left: 3px solid var(--secondary);">
+                                    <div class="stat-number">${stats.avg_km}km</div>
+                                    <div class="stat-label">${actionName}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                        ${stats.min_km}-${stats.max_km}km (${stats.count} interactions)
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        behaviorHtml += '</div></div>';
+                    }
+                    
+                    // Distance ranges
+                    if (distanceData.distance_ranges && Object.keys(distanceData.distance_ranges).length > 0) {
+                        behaviorHtml += '<div style="margin: 1rem 0;"><h4 style="color: var(--secondary); margin-bottom: 0.5rem;">Distance Range Preferences:</h4>';
+                        for (const [action, ranges] of Object.entries(distanceData.distance_ranges)) {
+                            if (Object.keys(ranges).length > 0) {
+                                const actionName = action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                behaviorHtml += `<div style="margin: 1rem 0; padding: 1rem; background: rgba(15, 23, 42, 0.4); border-radius: 8px;"><h5 style="color: var(--secondary); margin-bottom: 0.5rem;">${actionName}:</h5><div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">`;
+                                for (const [range, count] of Object.entries(ranges)) {
+                                    behaviorHtml += `<span style="background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${range}: ${count}</span>`;
+                                }
+                                behaviorHtml += '</div></div>';
+                            }
+                        }
+                    }
+                    
+                    behaviorHtml += '</div>';
+                }
+                
                 // Age preferences
                 if (behavior.age_preferences && Object.keys(behavior.age_preferences).length > 0) {
                     behaviorHtml += '<div style="margin-top: 2rem;"><h3 style="color: var(--text-primary); margin-bottom: 1rem;">Age Group Preferences</h3>';
@@ -728,6 +792,29 @@
                         }
                     }
                     behaviorHtml += '</div>';
+                }
+                
+                // Interaction timeline
+                if (behavior.interaction_timeline && behavior.interaction_timeline.days_active !== null) {
+                    behaviorHtml += `
+                        <div style="margin-top: 2rem; padding: 1rem; background: rgba(15, 23, 42, 0.4); border-radius: 8px;">
+                            <h4 style="color: var(--accent); margin-bottom: 0.5rem;"><i class="fas fa-calendar-alt"></i> Activity Timeline</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <div>
+                                    <div style="color: var(--text-muted); font-size: 0.85rem;">Days Active</div>
+                                    <div style="color: var(--text-primary); font-weight: 600;">${behavior.interaction_timeline.days_active}</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-muted); font-size: 0.85rem;">First Interaction</div>
+                                    <div style="color: var(--text-primary); font-weight: 600;">${new Date(behavior.interaction_timeline.first_interaction).toLocaleDateString()}</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-muted); font-size: 0.85rem;">Last Interaction</div>
+                                    <div style="color: var(--text-primary); font-weight: 600;">${new Date(behavior.interaction_timeline.last_interaction).toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
             }
             
