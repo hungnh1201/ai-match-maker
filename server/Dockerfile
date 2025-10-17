@@ -18,14 +18,17 @@ RUN pip install --no-cache-dir \
     -r requirements.txt || \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application files (excluding outputs/ - will be created at runtime)
+# Copy application files
 COPY server.py .
 COPY templates/ templates/
 COPY scripts/ scripts/
 COPY models/ models/
 COPY data/ data/
 
-# Create outputs directory for runtime
+# Copy pre-trained model files and outputs
+COPY outputs/ outputs/
+
+# Ensure all output directories exist
 RUN mkdir -p outputs/data outputs/embeddings outputs/vector_db
 
 # Set environment variables
